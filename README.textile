@@ -1,0 +1,37 @@
+h1. Wysihatter Plugin
+
+Rails plugin to help integrate the "37signals WysiHat rich text editor":http://github.com/josh/wysihat/ 
+
+This plugin is largely based on work done by "80beans":http://github.com/80beans on his "wysihat-engine":http://github.com/80beans/wysihat-engine
+
+This is a first draft that will be live soon on http://deucescracked.com  Suggestions, questions?  wiseleyb at gmail dot com
+
+h2. Example
+
+bc. script/plugin install http://github.com/wiseleyb/wysihatter.git
+
+In your view:
+
+bc. <% content_for :head do %>
+	<%= javascript_include_tag "/plugin_assets/wysihatter/javascripts/wysihat.js" %>
+	<%= javascript_include_tag "/plugin_assets/wysihatter/javascripts/wysihat_engine.js" %>
+	<%= javascript_include_tag "/plugin_assets/wysihatter/javascripts/facebox.js" %>
+	<%= stylesheet_link_tag '/plugin_assets/wysihatter/stylesheets/facebox', '/plugin_assets/wysihatter/stylesheets/wysihat' %>
+<% end %>
+
+bc. <% form_for(@post, :url => "/index/wysihat", :html => {:id => "wysihat_form", :name => "wysihat_form", :multipart => true}) do |f| %>
+	<%=f.wysihatter_editor :body, {:form_id => "wysihat_form", :buttons => [:bold, :italic, :underline, :strikethrough, :h1, :h2, :h3, :p, 
+						:justify_left, :justify_center, :justify_right, 
+						:insert_ordered_list, :insert_unordered_list, :undo, 
+						:redo, :link, :html, :image, :paste, :blockquote]} %>
+		<br/><br/>
+		<%= submit_tag "Create" %>
+	</div>
+<% end %>
+
+This would create a WyiHat editor for Post.body
+
+For more examples, integrations and walk throughs see http://github.com/wiseleyb/wysihatter/wikis
+
+
+Copyright (c) 2010 Ben Wiseley, released under the MIT license
