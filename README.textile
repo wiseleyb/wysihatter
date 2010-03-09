@@ -31,7 +31,7 @@ bc. <% form_for(@post, :url => "/index/wysihat", :html => {:id => "wysihat_form"
 
 This would create a WyiHat editor for Post.body
 
-For more examples, integrations and walk throughs see http://github.com/wiseleyb/wysihatter/wikis
+For more examples, integrations and walk throughs see "http://wiki.github.com/wiseleyb/wysihatter/":http://wiki.github.com/wiseleyb/wysihatter/
 
 
 Copyright (c) 2010 Ben Wiseley, released under the MIT license
