@@ -146,6 +146,10 @@ WysiHat.Commands = (function() {
     this.execCommand('insertImage', false, url);
   }
 
+	function removeFormat() {
+		this.execCommand('removeformat', false, null);
+	}
+
   function insertHTML(html) {
     if (Prototype.Browser.IE) {
       var range = this._selection.getRange();
@@ -226,7 +230,8 @@ WysiHat.Commands = (function() {
      execCommand:                      execCommand,
      queryCommandState:                queryCommandState,
      getSelectedStyles:                getSelectedStyles,
-
+		 removeFormat:                     removeFormat,
+		
     commands: $H({}),
 
     queryCommands: $H({
@@ -1920,12 +1925,18 @@ WysiHat.Toolbar = Class.create((function() {
     });
   }
 
+	function addText(text) {
+    var elem = new Element('span', {'class':'button_text'});
+		elem.update(text);
+		this.element.appendChild(elem);
+	}
+	
   function addButton(options, handler) {
     options = $H(options);
 
     if (!options.get('name'))
       options.set('name', options.get('label').toLowerCase());
-    var name = options.get('name');
+    var name = options.get('name').labelize();
 
     var button = this.createButtonElement(this.element, options);
 
@@ -1935,12 +1946,15 @@ WysiHat.Toolbar = Class.create((function() {
     var handler = this.buttonStateHandler(name, options);
     this.observeStateChanges(button, name, handler);
   }
-
+	
   function createButtonElement(toolbar, options) {
+		var title = options.get('name').titleize();
+		if (options.get('tooltip')) title = options.get('tooltip');
+		
     var button = new Element('a', {
-      'class': 'button', 'href': '#'
+      'class': 'button', 'href': '#', 'title': title
     });
-    button.update('<span>' + options.get('label') + '</span>');
+    button.update('<span>' + options.get('label').titleize() + '</span>');
     button.addClassName(options.get('name'));
 
     toolbar.appendChild(button);
@@ -1994,9 +2008,100 @@ WysiHat.Toolbar = Class.create((function() {
       element.removeClassName('selected');
   }
 
+	function addSelectbox(options, handler) {
+    options = $H(options);
+
+    var name = options.get('name');
+
+    var selectbox = this.createSelectboxElement(this.element, options) ;
+
+    var handler = this.selectboxHandler(name, options);
+    this.observeOptionSelect(selectbox, handler);
+
+    var handler = this.selectboxStateHandler(name, options);
+    this.observeStateChangesSelectbox(handler);
+  }
+
+  function createSelectboxElement(toolbar, options) {
+    var selectbox = Element('select', {
+      'class': options.get('name'), 'id': options.get('id')
+    });
+		selectbox.addClassName('button_select');
+    choices = options.get('options');
+		choices.each(function(option){
+      element = Element('option', {
+        'id' : option.toLowerCase()
+      });
+      element.update(option);
+      selectbox.appendChild(element);
+    });
+
+		// add label option to selectbox
+		element = Element('option', { 'selected' : 'selected' });
+    element.update(options.get('label'));
+		selectbox.insert({top:element});
+
+    toolbar.appendChild(selectbox);
+
+    return selectbox;
+  }
+
+  function selectboxHandler(name, options) {
+    if (options.handler)
+      return options.handler;
+    else if (options.get('handler'))
+      return options.get('handler');
+    else
+      var handlers = {};
+      options.get('options').each(function(option){
+        var handler = function(editor) { editor.execCommand(name, false, option); };
+        handlers[option] = handler;
+      });
+      return handlers;
+  }
+
+  function observeOptionSelect(element, handler) {
+    var toolbar = this;
+    element.observe('change', function(event) {
+      handler[element.value](toolbar.editor);
+      toolbar.editor.fire("wysihat:change");
+      toolbar.editor.fire("wysihat:cursormove");
+			// TODO this is a pretty pathetic hack - we should figure out how to pass a virtual function or something (ps. I SUCK at JS)
+			toolbar.editor.fire("wysihat:" + toolbar.editor.textarea.id + ":" + element.id + ":" + element.value);
+      Event.stop(event);
+			element.options[0].selected = true;
+    });
+  }
+
+  function selectboxStateHandler(name, options) {
+    if (options.query)
+      return options.query;
+    else if (options.get('query'))
+      return options.get('query');
+    else
+      return function(editor) { return editor.getSelectedStyles().get(name); };
+  }
+
+  function observeStateChangesSelectbox(handler) {
+    var toolbar = this;
+    var previousState = false;
+    toolbar.editor.observe("wysihat:cursormove", function(event) {
+      var state = handler(toolbar.editor);
+      if (state != previousState) {
+        previousState = state;
+        toolbar.updateSelectboxState(state);
+      }
+    });
+  }
+
+  function updateSelectboxState(state) {
+		if (state) $(state.toLowerCase()).selected = true;
+  }
+
   return {
     initialize:           initialize,
     createToolbarElement: createToolbarElement,
+		addText: 							addText,
     addButtonSet:         addButtonSet,
     addButton:            addButton,
     createButtonElement:  createButtonElement,
@@ -2004,7 +2109,15 @@ WysiHat.Toolbar = Class.create((function() {
     observeButtonClick:   observeButtonClick,
     buttonStateHandler:   buttonStateHandler,
     observeStateChanges:  observeStateChanges,
-    updateButtonState:    updateButtonState
+    updateButtonState:    updateButtonState,
+    addSelectbox:                 addSelectbox,
+    createSelectboxElement:       createSelectboxElement,
+    selectboxHandler:             selectboxHandler,
+    observeOptionSelect:          observeOptionSelect,
+    updateSelectboxState:         updateSelectboxState,
+    selectboxStateHandler:        selectboxStateHandler,
+    observeStateChangesSelectbox: observeStateChangesSelectbox
+
   };
 })());
 

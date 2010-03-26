@@ -1,6 +1,19 @@
 require 'paperclip'
 
 module Wysihatter
+  def wysihatter_sanitize(html)
+    # TODO attributes => :all is pretty sloppy and might be dangerous... revist.
+		Sanitize.clean(html, 
+					:elements => [
+			    'b', 'i', 'a', 'blockquote', 'br', 'p', 'h1', 'h2', 'h3', 'img',
+			    'ul', 'li', 'ol', 'object', 'param', 'embed', 'span', 'strong', 'alt',
+					'em'
+			  	],
+				:attributes => {
+					:all => ['width', 'height', 'name', 'src', 'href', 'value', 'type', 'allowscriptaccess', 'allowfullscreen', 'style']
+					}
+			)
+	end
 end
 
 module ActionView
@@ -29,6 +42,10 @@ module ActionView
           buttons = options['buttons']
         end
         
+        tooltips = options['tooltips'].is_a?(Hash) ? options['tooltips'].to_json : {}.to_json
+        advanced_buttons = options['advanced_buttons'].is_a?(Hash) ? options['advanced_buttons'].to_json : {}.to_json
+        btns = buttons.to_json
+        
         #added this option to fix wyiHatify from killing ajax forms
         form_id = options['form_id'].to_s
         
@@ -36,10 +53,9 @@ module ActionView
         if (typeof wysihat_editors == 'undefined') var wysihat_editors = new Array();
 
         function loadEditor_#{tag_id}() {
-          wysihat_editors['#{tag_id}'] = wysiHatify('#{tag_id}', '#{form_id}', ['#{buttons.join('\', \'')}']);
+          wysihat_editors['#{tag_id}'] = wysiHatify('#{tag_id}', '#{form_id}', {buttons:#{btns}, tooltips:#{tooltips}, advanced_buttons:#{advanced_buttons}});
           Event.fire(document, "wysihat:#{tag_id}:loaded");
         }
-        
         Event.observe(window, 'load', function() { loadEditor_#{tag_id}(); });
         )
 

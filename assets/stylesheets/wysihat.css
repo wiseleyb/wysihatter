@@ -4,8 +4,20 @@ div.editor_toolbar a {
   height: 16px;
   margin: 5px;
   background-repeat: no-repeat; }
+
 div.editor_toolbar span {
   display: none; }
+
+div.editor_toolbar span.button_text {
+	display: block;
+	float: left;
+}
+
+div.editor_toolbar select.button_select {
+	display: block;
+	float: left;
+	margin: 8px 5px 0 5px;
+}
 
 .editor_toolbar .button {
   background-image: url('../images/icons/exclamation.png'); }
@@ -17,19 +29,19 @@ div.editor_toolbar span {
   background-image: url('../images/icons/text_underline.png'); }
 .editor_toolbar .strikethrough {
   background-image: url('../images/icons/text_strikethrough.png'); }
-.editor_toolbar .justifyleft {
+.editor_toolbar .justify_left {
   background-image: url('../images/icons/text_align_left.png'); }
-.editor_toolbar .justifycenter {
+.editor_toolbar .justify_center {
   background-image: url('../images/icons/text_align_center.png'); }
-.editor_toolbar .justifyright {
+.editor_toolbar .justify_right {
   background-image: url('../images/icons/text_align_right.png'); }
 .editor_toolbar .undo {
   background-image: url('../images/icons/arrow_undo.png'); }
 .editor_toolbar .redo {
   background-image: url('../images/icons/arrow_redo.png'); }
-.editor_toolbar .insertorderedlist {
+.editor_toolbar .insert_ordered_list {
   background-image: url('../images/icons/text_list_numbers.png'); }
-.editor_toolbar .insertunorderedlist {
+.editor_toolbar .insert_unordered_list {
   background-image: url('../images/icons/text_list_bullets.png'); }
 .editor_toolbar .link {
   background-image: url('../images/icons/link.png'); }
@@ -50,12 +62,13 @@ div.editor_toolbar span {
 .editor_toolbar .h6 {
   background-image: url('../images/icons/text_heading_6.png'); }
 .editor_toolbar .p {
-  background-image: url('../images/icons/cancel.png'); }
+  background-image: url('../images/icons/p.png'); }
 .editor_toolbar .paste {
   background-image: url('../images/icons/paste_word.png'); }
 .editor_toolbar .blockquote {
 	background-image: url('../images/icons/blockquote.png'); }
-
+.editor_toolbar .remove_format {
+	background-image: url('../images/icons/font_delete.png'); }
 iframe.editor {
   border: 1px solid #999;
   height: 400px;
